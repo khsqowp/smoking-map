@@ -1,0 +1,93 @@
+// build.gradle
+
+plugins {
+    // 자바 프로젝트를 위한 기본 플러그인
+    id 'java'
+    // Spring Boot 애플리케이션 빌드를 위한 플러그인
+    id 'org.springframework.boot' version '3.2.4' // 사용하시는 버전에 맞게 조절 가능
+    // Spring의 의존성 관리 플러그인
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.smoking_map'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    // 자바 버전 17로 설정
+    sourceCompatibility = '17'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    // 의존성을 다운로드할 중앙 저장소
+    mavenCentral()
+}
+
+// 프로젝트 전역에서 사용할 버전 변수 설정
+ext {
+    set('springCloudVersion', "2023.0.0")
+    set('springCloudAwsVersion', "3.1.1")
+}
+
+// 프로젝트에 필요한 라이브러리(의존성) 목록
+dependencies {
+    // spring web: rest api 및 내장 웹 서버
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // spring data jpa: 데이터베이스 연동
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // spring security: 보안 및 인증/인가
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // oauth2 client: 구글 소셜 로그인
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // validation: 데이터 유효성 검증
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // mysql driver: mysql 데이터베이스 연결
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // h2 database: 개발 및 테스트용
+    runtimeOnly 'com.h2database:h2'
+
+    // lombok: 반복적인 코드 자동 생성
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // devtools: 개발 편의 기능 (자동 재시작 등)
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // 테스트
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // spring cloud aws s3 starter: s3 파일 업로드를 위한 핵심 라이브러리
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
+
+    implementation 'org.imgscalr:imgscalr-lib:4.2'
+
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
+
+
+}
+
+// 의존성 버전 관리 설정 (BOM)
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:${springCloudAwsVersion}"
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
