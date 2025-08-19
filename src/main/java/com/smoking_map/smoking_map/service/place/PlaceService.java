@@ -1,11 +1,15 @@
 package com.smoking_map.smoking_map.service.place;
 
+import com.smoking_map.smoking_map.config.auth.dto.SessionUser;
 import com.smoking_map.smoking_map.domain.place.Place;
 import com.smoking_map.smoking_map.domain.place.PlaceRepository;
+import com.smoking_map.smoking_map.domain.user.User;
+import com.smoking_map.smoking_map.domain.user.UserRepository;
 import com.smoking_map.smoking_map.service.geocoding.GeocodingService;
 import com.smoking_map.smoking_map.service.s3.S3Uploader;
 import com.smoking_map.smoking_map.web.dto.PlaceResponseDto;
 import com.smoking_map.smoking_map.web.dto.PlaceSaveRequestDto;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
@@ -24,11 +28,17 @@ import java.util.stream.Collectors;
 @Service
 public class PlaceService {
     private final PlaceRepository placeRepository;
+    private final UserRepository userRepository;
     private final S3Uploader s3Uploader;
     private final GeocodingService geocodingService;
+    private final HttpSession httpSession;
 
     @Transactional
     public Long save(PlaceSaveRequestDto requestDto, List<MultipartFile> images) throws IOException {
+        SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
+        User user = userRepository.findByEmail(sessionUser.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다. email=" + sessionUser.getEmail()));
+
         GeocodingService.GeocodingResult geocodingResult = geocodingService.getAddressFromCoords(
                 requestDto.getLatitude().doubleValue(),
                 requestDto.getLongitude().doubleValue()
@@ -40,6 +50,7 @@ public class PlaceService {
                 .originalAddress(requestDto.getOriginalAddress())
                 .description(requestDto.getDescription())
                 .roadAddress(geocodingResult.getFullAddress())
+                .user(user)
                 .build();
 
         if (images != null && !images.isEmpty()) {

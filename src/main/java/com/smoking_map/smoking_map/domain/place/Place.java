@@ -1,6 +1,7 @@
 package com.smoking_map.smoking_map.domain.place;
 
 import com.smoking_map.smoking_map.domain.BaseTimeEntity;
+import com.smoking_map.smoking_map.domain.user.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,13 +14,12 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @Entity
-public class Place extends BaseTimeEntity { // BaseTimeEntity 상속
+public class Place extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ... 기존 필드들 ...
     @Column(precision = 10, scale = 8, nullable = false)
     private BigDecimal latitude;
 
@@ -40,15 +40,25 @@ public class Place extends BaseTimeEntity { // BaseTimeEntity 상속
     @Column(name = "image_url", columnDefinition = "TEXT")
     private List<String> imageUrls = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Builder
-    public Place(BigDecimal latitude, BigDecimal longitude, String originalAddress, String roadAddress, String description, List<String> imageUrls) {
+    public Place(BigDecimal latitude, BigDecimal longitude, String originalAddress, String roadAddress, String description, List<String> imageUrls, User user) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.originalAddress = originalAddress;
         this.roadAddress = roadAddress;
         this.description = description;
+        this.user = user;
         if (imageUrls != null) {
             this.imageUrls = imageUrls;
         }
+    }
+
+    // 장소 수정 기능을 위한 메서드
+    public void updateDescription(String description) {
+        this.description = description;
     }
 }
