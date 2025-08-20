@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { apiClient } from '@/utils/apiClient'; // apiClient import
 
 interface Props {
     placeId: number;
@@ -19,13 +20,11 @@ export default function EditRequestModal({ placeId, onClose }: Props) {
         }
         setIsSubmitting(true);
         try {
-            const res = await fetch(`/api/v1/places/${placeId}/edit-requests`, {
+            // --- ▼▼▼ [수정] fetch를 apiClient로 교체 ▼▼▼ ---
+            await apiClient(`/api/v1/places/${placeId}/edit-requests`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ content }),
+                body: { content },
             });
-            if (!res.ok) throw new Error('수정 요청 제출에 실패했습니다.');
             alert('수정 요청이 성공적으로 제출되었습니다.');
             onClose();
         } catch (err: any) {

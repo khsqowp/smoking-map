@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { apiClient } from '@/utils/apiClient';
 
 interface Place {
     id: number;
@@ -20,6 +21,51 @@ interface EditRequest {
     createdAt: string;
 }
 
+// --- ▼▼▼ [추가] 이미지 뷰어 모달 컴포넌트 ▼▼▼ ---
+const ImageViewerModal = ({ placeId, onClose }: { placeId: number; onClose: () => void; }) => {
+    const [imageUrls, setImageUrls] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchImages = async () => {
+            try {
+                const data = await apiClient(`/api/v1/admin/places/${placeId}/images`);
+                setImageUrls(data || []);
+            } catch (error) {
+                console.error("Failed to fetch images:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchImages();
+    }, [placeId]);
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="image-viewer-modal-content" onClick={(e) => e.stopPropagation()}>
+                <h2>장소 이미지 (ID: {placeId})</h2>
+                {isLoading ? (
+                    <div>이미지 로딩 중...</div>
+                ) : (
+                    <div className="image-grid">
+                        {imageUrls.length > 0 ? (
+                            imageUrls.map((url, index) => (
+                                <div key={index} className="image-grid-item">
+                                    <a href={url} target="_blank" rel="noopener noreferrer">
+                                        <img src={url} alt={`장소 이미지 ${index + 1}`} />
+                                    </a>
+                                </div>
+                            ))
+                        ) : (
+                            <div>표시할 이미지가 없습니다.</div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
 const EditModal = ({ place, onClose, onConfirm }: { place: Place; onClose: () => void; onConfirm: (id: number, description: string) => void; }) => {
     const [description, setDescription] = useState(place.description);
     const [requests, setRequests] = useState<EditRequest[]>([]);
@@ -27,11 +73,8 @@ const EditModal = ({ place, onClose, onConfirm }: { place: Place; onClose: () =>
     useEffect(() => {
         const fetchRequests = async () => {
             try {
-                const res = await fetch(`/api/v1/admin/places/${place.id}/edit-requests`, { credentials: 'include' });
-                if (res.ok) {
-                    const data = await res.json();
-                    setRequests(data);
-                }
+                const data = await apiClient(`/api/v1/admin/places/${place.id}/edit-requests`);
+                if (data) setRequests(data);
             } catch (error) {
                 console.error("Failed to fetch edit requests:", error);
             }
@@ -84,13 +127,12 @@ export default function AdminPlacesPage() {
     const [error, setError] = useState('');
     const [editingPlace, setEditingPlace] = useState<Place | null>(null);
     const [sortOrder, setSortOrder] = useState<'default' | 'desc'>('default');
+    const [viewingImagesOfPlaceId, setViewingImagesOfPlaceId] = useState<number | null>(null); // --- ▼▼▼ [추가] 이미지 뷰어 상태 ▼▼▼ ---
 
     const fetchPlaces = useCallback(async () => {
         setIsLoading(true);
         try {
-            const res = await fetch('/api/v1/admin/places', { credentials: 'include' });
-            if (!res.ok) throw new Error('장소 목록을 불러오는데 실패했습니다.');
-            const data = await res.json();
+            const data = await apiClient('/api/v1/admin/places');
             setPlaces(data);
         } catch (err: any) {
             setError(err.message);
@@ -117,17 +159,13 @@ export default function AdminPlacesPage() {
 
     const handleUpdateConfirm = async (id: number, description: string) => {
         try {
-            const res = await fetch(`/api/v1/admin/places/${id}`, {
+            await apiClient(`/api/v1/admin/places/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ description }),
+                body: { description },
             });
-            if (!res.ok) throw new Error('장소 정보 수정에 실패했습니다.');
-
             alert('수정이 완료되었습니다.');
             setEditingPlace(null);
-            fetchPlaces(); // 목록 새로고침
+            fetchPlaces();
         } catch (err: any) {
             alert(err.message);
         }
@@ -138,14 +176,11 @@ export default function AdminPlacesPage() {
             return;
         }
         try {
-            const res = await fetch(`/api/v1/admin/places/${id}`, {
+            await apiClient(`/api/v1/admin/places/${id}`, {
                 method: 'DELETE',
-                credentials: 'include',
             });
-            if (!res.ok) throw new Error('장소 삭제에 실패했습니다.');
-
             alert('삭제가 완료되었습니다.');
-            fetchPlaces(); // 목록 새로고침
+            fetchPlaces();
         } catch (err: any) {
             alert(err.message);
         }
@@ -178,7 +213,16 @@ export default function AdminPlacesPage() {
                             <td>{place.id}</td>
                             <td>{place.roadAddress}</td>
                             <td style={{ maxWidth: '300px', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{place.description}</td>
-                            <td>{place.imageCount}</td>
+                            {/* --- ▼▼▼ [수정] 이미지 수 부분을 버튼으로 변경 ▼▼▼ --- */}
+                            <td>
+                                {place.imageCount > 0 ? (
+                                    <button onClick={() => setViewingImagesOfPlaceId(place.id)} className="link-style-button">
+                                        {place.imageCount}
+                                    </button>
+                                ) : (
+                                    0
+                                )}
+                            </td>
                             <td>{place.creatorEmail}</td>
                             <td>{place.createdAt}</td>
                             <td>
@@ -201,6 +245,14 @@ export default function AdminPlacesPage() {
                     place={editingPlace}
                     onClose={() => setEditingPlace(null)}
                     onConfirm={handleUpdateConfirm}
+                />
+            )}
+
+            {/* --- ▼▼▼ [추가] 이미지 뷰어 모달 렌더링 ▼▼▼ --- */}
+            {viewingImagesOfPlaceId && (
+                <ImageViewerModal
+                    placeId={viewingImagesOfPlaceId}
+                    onClose={() => setViewingImagesOfPlaceId(null)}
                 />
             )}
         </div>

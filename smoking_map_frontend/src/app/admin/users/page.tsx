@@ -3,11 +3,13 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { apiClient } from '@/utils/apiClient'; // apiClient import
 
 interface AdminUser {
     id: number;
     name: string;
     email: string;
+    picture: string;
     role: string;
     createdAt: string;
 }
@@ -25,9 +27,8 @@ export default function AdminUsersPage() {
     const fetchUsers = useCallback(async () => {
         setIsLoading(true);
         try {
-            const res = await fetch('/api/v1/admin/users', { credentials: 'include' });
-            if (!res.ok) throw new Error('사용자 목록을 불러오는데 실패했습니다.');
-            const data = await res.json();
+            // --- ▼▼▼ [수정] fetch를 apiClient로 교체 ▼▼▼ ---
+            const data = await apiClient('/api/v1/admin/users');
             setUsers(data);
         } catch (err: any) {
             setError(err.message);
@@ -53,18 +54,15 @@ export default function AdminUsersPage() {
     const handleUpdateRole = async () => {
         if (!editingUserId) return;
         try {
-            const res = await fetch(`/api/v1/admin/users/${editingUserId}/role`, {
+            // --- ▼▼▼ [수정] fetch를 apiClient로 교체 ▼▼▼ ---
+            await apiClient(`/api/v1/admin/users/${editingUserId}/role`, {
                 method: 'PATCH',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ role: selectedRole })
+                body: { role: selectedRole }
             });
-
-            if (!res.ok) throw new Error('역할 변경에 실패했습니다.');
 
             alert('성공적으로 역할을 변경했습니다.');
             handleCancelEdit();
-            fetchUsers(); // 목록을 다시 불러와 변경사항을 반영합니다.
+            fetchUsers();
         } catch (err: any) {
             alert(`오류: ${err.message}`);
         }
@@ -81,6 +79,7 @@ export default function AdminUsersPage() {
                     <thead>
                     <tr>
                         <th>ID</th>
+                        <th>이미지</th>
                         <th>이름</th>
                         <th>이메일</th>
                         <th>역할</th>
@@ -92,12 +91,20 @@ export default function AdminUsersPage() {
                     {users.map(user => (
                         <tr key={user.id}>
                             <td>{user.id}</td>
+                            <td>
+                                <img
+                                    src={user.picture}
+                                    alt={user.name}
+                                    width={40}
+                                    height={40}
+                                    style={{ borderRadius: '50%', objectFit: 'cover' }}
+                                />
+                            </td>
                             <td>{user.name}</td>
                             <td>{user.email}</td>
                             <td>
                                 {editingUserId === user.id ? (
                                     <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)}
-                                        // --- ▼▼▼ [추가] 셀렉트 박스 스타일 ▼▼▼ ---
                                         style={{
                                             backgroundColor: '#2D3748',
                                             color: '#E2E8F0',
@@ -116,7 +123,6 @@ export default function AdminUsersPage() {
                             <td>
                                 {editingUserId === user.id ? (
                                     <>
-                                        {/* --- ▼▼▼ [수정] 버튼에 클래스 적용 ▼▼▼ --- */}
                                         <button onClick={handleUpdateRole} className="btn btn-primary" style={{marginRight: '5px'}}>저장</button>
                                         <button onClick={handleCancelEdit} className="btn btn-secondary">취소</button>
                                     </>

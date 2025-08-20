@@ -4,6 +4,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiClient } from '@/utils/apiClient'; // apiClient import
 
 type RegisterModalProps = {
     coords: { lat: number; lng: number };
@@ -49,23 +50,18 @@ export default function RegisterModal({ coords, onClose }: RegisterModalProps) {
         });
 
         try {
-            const response = await fetch('/api/v1/places', {
+            // --- ▼▼▼ [수정] fetch를 apiClient로 교체 ▼▼▼ ---
+            await apiClient('/api/v1/places', {
                 method: 'POST',
-                credentials: 'include',
                 body: formData,
             });
 
-            if (response.ok) {
-                alert('새로운 흡연구역이 등록되었습니다.');
-                onClose();
-                router.refresh();
-            } else {
-                const error = await response.json();
-                alert(`등록 실패: ${error.message || '서버 오류가 발생했습니다.'}`);
-            }
-        } catch (error) {
+            alert('새로운 흡연구역이 등록되었습니다.');
+            onClose();
+            router.refresh();
+        } catch (error: any) {
             console.error('장소 등록 중 오류 발생:', error);
-            alert('장소 등록 중 오류가 발생했습니다.');
+            alert(`등록 실패: ${error.message || '서버 오류가 발생했습니다.'}`);
         } finally {
             setIsSubmitting(false);
         }
@@ -73,7 +69,6 @@ export default function RegisterModal({ coords, onClose }: RegisterModalProps) {
 
     return (
         <div className="modal-overlay">
-            {/* --- ▼▼▼ [수정] className="modal-content" 적용 ▼▼▼ --- */}
             <div className="modal-content">
                 <h2>흡연구역 세부 정보 등록</h2>
                 <div>
@@ -100,8 +95,8 @@ export default function RegisterModal({ coords, onClose }: RegisterModalProps) {
                     />
                 </div>
                 <div className="modal-actions">
-                    <button className="cancel-btn" onClick={onClose} disabled={isSubmitting}>취소</button>
-                    <button className="register-btn" onClick={handleSubmit} disabled={isSubmitting}>
+                    <button className="btn btn-secondary" onClick={onClose} disabled={isSubmitting}>취소</button>
+                    <button className="btn btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
                         {isSubmitting ? '등록 중...' : '최종 등록'}
                     </button>
                 </div>

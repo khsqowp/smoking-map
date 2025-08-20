@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Place } from './MapContainer';
 import { useUser } from '@/context/UserContext';
 import EditRequestModal from '@/components/EditRequestModal';
+import { apiClient } from '@/utils/apiClient'; // apiClient import
 
 type PlaceDetailProps = {
     place: Place | null;
@@ -22,13 +23,11 @@ const ReportModal = ({ placeId, onClose }: { placeId: number, onClose: () => voi
             return;
         }
         try {
-            const res = await fetch(`/api/v1/places/${placeId}/report`, {
+            // --- ▼▼▼ [수정] fetch를 apiClient로 교체 ▼▼▼ ---
+            await apiClient(`/api/v1/places/${placeId}/report`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ type: reportType, content: reportType === 'OTHER' ? content : '' }),
+                body: { type: reportType, content: reportType === 'OTHER' ? content : '' },
             });
-            if (!res.ok) throw new Error('신고 제출에 실패했습니다.');
             alert('신고가 정상적으로 접수되었습니다.');
             onClose();
         } catch (err: any) {
@@ -84,7 +83,8 @@ export default function PlaceDetail({ place, onClose }: PlaceDetailProps) {
 
     useEffect(() => {
         if (place) {
-            fetch(`/api/v1/places/${place.id}/view`, { method: 'POST', credentials: 'include' });
+            // --- ▼▼▼ [수정] fetch를 apiClient로 교체 ▼▼▼ ---
+            apiClient(`/api/v1/places/${place.id}/view`, { method: 'POST' });
 
             if (place.roadAddress && place.roadAddress !== "주소 정보 없음") {
                 setAddress(place.roadAddress);
@@ -116,22 +116,17 @@ export default function PlaceDetail({ place, onClose }: PlaceDetailProps) {
         });
 
         try {
-            const response = await fetch(`/api/v1/places/${place.id}/images`, {
+            // --- ▼▼▼ [수정] fetch를 apiClient로 교체 ▼▼▼ ---
+            await apiClient(`/api/v1/places/${place.id}/images`, {
                 method: 'POST',
-                credentials: 'include',
                 body: formData,
             });
 
-            if (response.ok) {
-                alert(`${files.length}개의 이미지가 성공적으로 추가되었습니다.`);
-                onClose();
-                router.refresh();
-            } else {
-                const errorData = await response.json();
-                alert(`업로드 실패: ${errorData.message || '서버 오류'}`);
-            }
-        } catch (error) {
-            alert('이미지 업로드 중 오류가 발생했습니다.');
+            alert(`${files.length}개의 이미지가 성공적으로 추가되었습니다.`);
+            onClose();
+            router.refresh();
+        } catch (error: any) {
+            alert(`업로드 실패: ${error.message || '서버 오류'}`);
         } finally {
             if(event.target) event.target.value = '';
         }
