@@ -112,4 +112,12 @@ public class PlaceService {
                 .map(PlaceResponseDto::new)
                 .collect(Collectors.toList());
     }
+
+//    조회수 증가 서비스 로직
+    @Transactional
+    public void increaseViewCount(Long id) {
+        Place place = placeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 장소가 없습니다. id=" + id));
+        place.increaseViewCount();
+    }
 }

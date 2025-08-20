@@ -16,8 +16,8 @@ public class AdminApiController {
     private final AdminService adminService;
 
     @GetMapping("/dashboard")
-    public ResponseEntity<DashboardResponseDto> getDashboardData() {
-        return ResponseEntity.ok(adminService.getDashboardData());
+    public ResponseEntity<DashboardResponseDto> getDashboardData(@RequestParam(defaultValue = "weekly") String range) {
+        return ResponseEntity.ok(adminService.getDashboardData(range));
     }
 
     @GetMapping("/places")
@@ -42,6 +42,16 @@ public class AdminApiController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/reports")
+    public ResponseEntity<List<AdminReportDto>> getAllReports() {
+        return ResponseEntity.ok(adminService.getAllReports());
+    }
+
+    @GetMapping("/users/contributions")
+    public ResponseEntity<List<UserContributionDto>> getUserContributions() {
+        return ResponseEntity.ok(adminService.getUserContributions());
+    }
+
     @GetMapping("/users")
     public ResponseEntity<List<AdminUserDto>> getAllUsers() {
         return ResponseEntity.ok(adminService.getAllUsers());
@@ -52,4 +62,20 @@ public class AdminApiController {
         adminService.updateUserRole(id, requestDto);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/stats")
+    public ResponseEntity<StatsResponseDto> getStatsData() {
+        return ResponseEntity.ok(adminService.getStatsData());
+    }
+
+    @GetMapping("/reports/grouped")
+    public ResponseEntity<List<GroupedAdminReportDto>> getGroupedReports() {
+        return ResponseEntity.ok(adminService.getGroupedReports());
+    }
+
+    @GetMapping("/places/{id}/edit-requests")
+    public ResponseEntity<List<AdminEditRequestDto>> getEditRequestsForPlace(@PathVariable Long id) {
+        return ResponseEntity.ok(adminService.getEditRequestsForPlace(id));
+    }
+
 }

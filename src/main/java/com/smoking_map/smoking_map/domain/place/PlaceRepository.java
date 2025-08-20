@@ -10,4 +10,6 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 
     // [추가] 도로명 주소로 장소를 검색하는 메서드 (Containing -> LIKE '%...%')
     List<Place> findByRoadAddressContaining(String roadAddress);
+
+    long countByCreatedAtBetween(java.time.LocalDateTime start, java.time.LocalDateTime end);
 }

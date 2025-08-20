@@ -1,18 +1,70 @@
+// src/app/PlaceDetail.tsx
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Place } from './MapContainer';
 import { useUser } from '@/context/UserContext';
+import EditRequestModal from '@/components/EditRequestModal';
 
 type PlaceDetailProps = {
     place: Place | null;
     onClose: () => void;
 };
 
+const ReportModal = ({ placeId, onClose }: { placeId: number, onClose: () => void }) => {
+    const [reportType, setReportType] = useState('DISAPPEARED');
+    const [content, setContent] = useState('');
+
+    const handleSubmit = async () => {
+        if (reportType === 'OTHER' && !content.trim()) {
+            alert('기타 신고 내용은 반드시 입력해야 합니다.');
+            return;
+        }
+        try {
+            const res = await fetch(`/api/v1/places/${placeId}/report`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ type: reportType, content: reportType === 'OTHER' ? content : '' }),
+            });
+            if (!res.ok) throw new Error('신고 제출에 실패했습니다.');
+            alert('신고가 정상적으로 접수되었습니다.');
+            onClose();
+        } catch (err: any) {
+            alert(`오류: ${err.message}`);
+        }
+    };
+
+    return (
+        <div className="modal-overlay">
+            <div className="modal-content">
+                <h2>잘못된 정보 신고 (장소 ID: {placeId})</h2>
+                <div style={{display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-start'}}>
+                    <label><input type="radio" name="reportType" value="INCORRECT" checked={reportType === 'INCORRECT'} onChange={(e) => setReportType(e.target.value)} /> 잘못된 정보</label>
+                    <label><input type="radio" name="reportType" value="DISAPPEARED" checked={reportType === 'DISAPPEARED'} onChange={(e) => setReportType(e.target.value)} /> 사라진 흡연구역</label>
+                    <label><input type="radio" name="reportType" value="OTHER" checked={reportType === 'OTHER'} onChange={(e) => setReportType(e.target.value)} /> 기타</label>
+                </div>
+                {reportType === 'OTHER' && (
+                    <textarea
+                        placeholder="상세 내용을 입력해주세요."
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        className="description-box"
+                    />
+                )}
+                <div className="modal-actions">
+                    <button onClick={onClose} className="btn btn-secondary">취소</button>
+                    <button onClick={handleSubmit} className="btn btn-primary">제출</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 async function getAddressFromCoords(latitude: number, longitude: number): Promise<string> {
     try {
-        const res = await fetch(`http://localhost:8080/api/v1/geocode?lat=${latitude}&lng=${longitude}`);
+        const res = await fetch(`/api/v1/geocode?lat=${latitude}&lng=${longitude}`);
         if (!res.ok) return "주소를 불러올 수 없습니다.";
         const data = await res.json();
         return data.address || "주소 정보 없음";
@@ -23,16 +75,17 @@ async function getAddressFromCoords(latitude: number, longitude: number): Promis
 }
 
 export default function PlaceDetail({ place, onClose }: PlaceDetailProps) {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [address, setAddress] = useState('');
+    const [address, setAddress] = useState('주소 로딩 중...');
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [isEditRequestModalOpen, setIsEditRequestModalOpen] = useState(false);
     const { user } = useUser();
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (place) {
-            setCurrentImageIndex(0);
-            // roadAddress 필드가 있으면 그것을 사용하고, 없으면 API 호출
+            fetch(`/api/v1/places/${place.id}/view`, { method: 'POST', credentials: 'include' });
+
             if (place.roadAddress && place.roadAddress !== "주소 정보 없음") {
                 setAddress(place.roadAddress);
             } else {
@@ -41,10 +94,7 @@ export default function PlaceDetail({ place, onClose }: PlaceDetailProps) {
         }
     }, [place]);
 
-    // place prop이 null이면 컴포넌트 자체를 렌더링하지 않음
-    if (!place) {
-        return null;
-    }
+    if (!place) return null;
 
     const handleAddImageClick = () => {
         if (user) {
@@ -57,46 +107,90 @@ export default function PlaceDetail({ place, onClose }: PlaceDetailProps) {
     };
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        // 파일 업로드 로직 (이전과 동일)
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+
+        const formData = new FormData();
+        Array.from(files).forEach(file => {
+            formData.append('images', file);
+        });
+
+        try {
+            const response = await fetch(`/api/v1/places/${place.id}/images`, {
+                method: 'POST',
+                credentials: 'include',
+                body: formData,
+            });
+
+            if (response.ok) {
+                alert(`${files.length}개의 이미지가 성공적으로 추가되었습니다.`);
+                onClose();
+                router.refresh();
+            } else {
+                const errorData = await response.json();
+                alert(`업로드 실패: ${errorData.message || '서버 오류'}`);
+            }
+        } catch (error) {
+            alert('이미지 업로드 중 오류가 발생했습니다.');
+        } finally {
+            if(event.target) event.target.value = '';
+        }
     };
 
     const handleRequestEdit = () => {
-        // TODO: 수정 요청 기능 구현
-        alert('수정 요청 기능은 현재 개발 중입니다.');
+        if (user) {
+            setIsEditRequestModalOpen(true);
+        }
     };
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="info-popup" onClick={(e) => e.stopPropagation()}>
-                {/* 상단: 이미지 */}
-                <div className="image-section">
-                    {place.imageUrls && place.imageUrls.length > 0 ? (
-                        <img src={place.imageUrls[currentImageIndex]} alt="흡연구역 이미지" />
-                    ) : (
-                        <div className="no-image-placeholder">이미지 없음</div>
-                    )}
-                    <button onClick={handleAddImageClick} className="add-image-btn-popup">+</button>
-                    <input ref={fileInputRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handleFileChange} />
-                </div>
+        <>
+            <div className="modal-overlay" onClick={onClose}>
+                <div className="info-popup" onClick={(e) => e.stopPropagation()}>
 
-                {/* 중간: 주소 */}
-                <div className="address-section">
-                    <h4>{address || place.originalAddress || "주소 로딩 중..."}</h4>
-                </div>
-
-                {/* 하단: 상세설명 */}
-                <div className="description-section">
-                    <div className="description-box-readonly">
-                        {place.description || "상세 설명이 없습니다."}
+                    <div className="image-section">
+                        {place.imageUrls && place.imageUrls.length > 0 ? (
+                            <img src={place.imageUrls[0]} alt="흡연구역 이미지" />
+                        ) : (
+                            <div className="no-image-placeholder">이미지 없음</div>
+                        )}
+                        {user && (
+                            <>
+                                <button onClick={handleAddImageClick} className="add-image-btn">+</button>
+                                <input ref={fileInputRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handleFileChange} />
+                            </>
+                        )}
                     </div>
-                    <button onClick={handleRequestEdit} className="edit-request-btn">수정 요청</button>
-                </div>
 
-                {/* 닫기 버튼 */}
-                <div className="bottom-actions">
-                    <button onClick={onClose} className="close-btn-bottom">닫기</button>
+                    <div className="address-section">
+                        <h4>{address}</h4>
+                    </div>
+
+                    <div className="description-section">
+                        <div className="description-box-readonly">
+                            {place.description || "상세 설명이 없습니다."}
+                        </div>
+                        {user && (
+                            <button onClick={handleRequestEdit} className="btn btn-secondary edit-request-btn">수정 요청</button>
+                        )}
+                    </div>
+
+                    <div className="bottom-actions">
+                        {user ? (
+                            <button onClick={() => setIsReportModalOpen(true)} className="btn btn-danger">수정/신고</button>
+                        ) : (
+                            <div></div>
+                        )}
+                        <button onClick={onClose} className="btn btn-secondary">닫기</button>
+                    </div>
                 </div>
             </div>
-        </div>
+            {isReportModalOpen && (
+                <ReportModal placeId={place.id} onClose={() => setIsReportModalOpen(false)} />
+            )}
+            {isEditRequestModalOpen && (
+                <EditRequestModal placeId={place.id} onClose={() => setIsEditRequestModalOpen(false)} />
+            )}
+        </>
     );
 }

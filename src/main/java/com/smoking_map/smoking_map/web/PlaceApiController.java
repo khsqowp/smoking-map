@@ -44,4 +44,11 @@ public class PlaceApiController {
     public ResponseEntity<PlaceResponseDto> findById(@PathVariable Long id) {
         return ResponseEntity.ok(placeService.findById(id));
     }
+
+    //조회수 증가 API
+    @PostMapping("/api/v1/places/{id}/view")
+    public ResponseEntity<Void> increaseViewCount(@PathVariable Long id) {
+        placeService.increaseViewCount(id);
+        return ResponseEntity.ok().build();
+    }
 }

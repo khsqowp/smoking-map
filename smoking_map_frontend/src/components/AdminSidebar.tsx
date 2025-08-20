@@ -1,36 +1,38 @@
+// src/components/AdminSidebar.tsx
+
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-
-const menuItems = [
-    { href: '/admin/dashboard', label: '📈 대시보드' },
-    { href: '/admin/places', label: '📍 장소 관리' },
-    { href: '/admin/users', label: '👥 사용자 관리' },
-];
+import { usePathname } from 'next/navigation'; // 현재 경로를 알기 위해 usePathname import
 
 export default function AdminSidebar() {
-    const pathname = usePathname();
+    const pathname = usePathname(); // 현재 URL 경로를 가져옵니다.
 
     return (
-        <aside style={{ width: '250px', backgroundColor: '#343a40', color: 'white', padding: '20px', minHeight: '100vh' }}>
-            <h2 style={{ marginBottom: '30px' }}>관리자 페이지</h2>
-            <nav>
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                    {menuItems.map(item => (
-                        <li key={item.href} style={{ marginBottom: '15px' }}>
-                            <Link href={item.href} style={{
-                                color: pathname === item.href ? '#007bff' : 'white',
-                                textDecoration: 'none',
-                                fontSize: '18px',
-                                fontWeight: pathname === item.href ? 'bold' : 'normal',
-                            }}>
-                                {item.label}
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
-            </nav>
-        </aside>
+        <nav className="admin-nav"> {/* 스타일링을 위해 클래스 추가 */}
+            <ul>
+                <li>
+                    {/* 현재 경로와 링크 경로가 일치하면 'active' 클래스를 적용합니다. */}
+                    <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>
+                        대시보드
+                    </Link>
+                </li>
+                <li>
+                    <Link href="/admin/places" className={pathname === '/admin/places' ? 'active' : ''}>
+                        장소 관리
+                    </Link>
+                </li>
+                <li>
+                    <Link href="/admin/users" className={pathname === '/admin/users' ? 'active' : ''}>
+                        사용자 관리
+                    </Link>
+                </li>
+                <li>
+                    <Link href="/admin/reports" className={pathname === '/admin/reports' ? 'active' : ''}>
+                        신고 관리
+                    </Link>
+                </li>
+            </ul>
+        </nav>
     );
 }

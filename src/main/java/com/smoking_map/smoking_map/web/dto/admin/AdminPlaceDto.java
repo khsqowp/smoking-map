@@ -1,3 +1,4 @@
+// src/main/java/com/smoking_map/smoking_map/web/dto/admin/AdminPlaceDto.java
 package com.smoking_map.smoking_map.web.dto.admin;
 
 import com.smoking_map.smoking_map.domain.place.Place;
@@ -14,8 +15,9 @@ public class AdminPlaceDto {
     private final int imageCount;
     private final String creatorEmail;
     private final String createdAt;
+    private final int editRequestCount;
 
-    public AdminPlaceDto(Place place) {
+    public AdminPlaceDto(Place place, int editRequestCount) {
         this.id = place.getId();
         this.roadAddress = place.getRoadAddress();
         this.description = place.getDescription();
@@ -28,5 +30,6 @@ public class AdminPlaceDto {
         } else {
             this.createdAt = "N/A";
         }
+        this.editRequestCount = editRequestCount;
     }
 }

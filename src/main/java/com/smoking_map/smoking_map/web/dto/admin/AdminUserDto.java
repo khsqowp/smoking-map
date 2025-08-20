@@ -1,6 +1,5 @@
 package com.smoking_map.smoking_map.web.dto.admin;
 
-import com.smoking_map.smoking_map.domain.user.Role;
 import com.smoking_map.smoking_map.domain.user.User;
 import lombok.Getter;
 

@@ -35,6 +35,10 @@ public class Place extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    // [추가] 조회수 필드
+    @Column(columnDefinition = "integer default 0")
+    private int viewCount = 0;
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "place_image_urls", joinColumns = @JoinColumn(name = "place_id"))
     @Column(name = "image_url", columnDefinition = "TEXT")
@@ -57,8 +61,12 @@ public class Place extends BaseTimeEntity {
         }
     }
 
-    // 장소 수정 기능을 위한 메서드
     public void updateDescription(String description) {
         this.description = description;
+    }
+
+    // [추가] 조회수를 1 증가시키는 메서드
+    public void increaseViewCount() {
+        this.viewCount++;
     }
 }

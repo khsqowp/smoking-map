@@ -1,3 +1,4 @@
+// src/main/java/com/smoking_map/smoking_map/config/auth/SecurityConfig.java
 package com.smoking_map.smoking_map.config.auth;
 
 import com.smoking_map.smoking_map.domain.user.Role;
@@ -25,8 +26,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/h2-console/**", "/api/v1/user", "/api/v1/geocode").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/places/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/places").hasRole(Role.USER.name())
-                        .requestMatchers(HttpMethod.POST, "/api/v1/places/{id}/images").hasRole(Role.USER.name())
+                        .requestMatchers(HttpMethod.POST, "/api/v1/places/{id}/view").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/places/{placeId}/report").hasAnyRole(Role.USER.name(), Role.ADMIN.name(), Role.MANAGER.name())
+
+                        // --- ▼▼▼ [수정] 수정 요청 API 권한 추가 ▼▼▼ ---
+                        .requestMatchers(HttpMethod.POST, "/api/v1/places/{placeId}/edit-requests").hasAnyRole(Role.USER.name(), Role.ADMIN.name(), Role.MANAGER.name())
+
+                        .requestMatchers(HttpMethod.POST, "/api/v1/places").hasAnyRole(Role.USER.name(), Role.ADMIN.name(), Role.MANAGER.name())
+                        .requestMatchers(HttpMethod.POST, "/api/v1/places/{id}/images").hasAnyRole(Role.USER.name(), Role.ADMIN.name(), Role.MANAGER.name())
                         .requestMatchers("/api/v1/admin/**").hasRole(Role.ADMIN.name())
                         .anyRequest().authenticated()
                 )
