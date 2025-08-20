@@ -75,7 +75,7 @@ dependencies {
 
     implementation 'org.imgscalr:imgscalr-lib:4.2'
 
-    implementation 'org.apache.commons:commons-lang3:3.14.0'
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
 
 
 }
