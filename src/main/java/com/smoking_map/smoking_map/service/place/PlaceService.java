@@ -6,6 +6,7 @@ import com.smoking_map.smoking_map.domain.place.PlaceRepository;
 import com.smoking_map.smoking_map.domain.user.User;
 import com.smoking_map.smoking_map.domain.user.UserRepository;
 import com.smoking_map.smoking_map.service.geocoding.GeocodingService;
+import com.smoking_map.smoking_map.service.s3.FileValidator; // FileValidator import 추가
 import com.smoking_map.smoking_map.service.s3.S3Uploader;
 import com.smoking_map.smoking_map.web.dto.PlaceResponseDto;
 import com.smoking_map.smoking_map.web.dto.PlaceSaveRequestDto;
@@ -32,6 +33,7 @@ public class PlaceService {
     private final S3Uploader s3Uploader;
     private final GeocodingService geocodingService;
     private final HttpSession httpSession;
+    private final FileValidator fileValidator; // FileValidator 의존성 주입
 
     @Transactional
     public Long save(PlaceSaveRequestDto requestDto, List<MultipartFile> images) throws IOException {
@@ -54,6 +56,12 @@ public class PlaceService {
                 .build();
 
         if (images != null && !images.isEmpty()) {
+            // --- ▼▼▼ [수정] 파일 검증 로직 추가 ▼▼▼ ---
+            for (MultipartFile image : images) {
+                fileValidator.validateImageFile(image);
+            }
+            // --- ▲▲▲ [수정] 파일 검증 로직 추가 ▲▲▲ ---
+
             String dirPath = "places/" + geocodingResult.getSido();
             int sequence = 1;
             for (MultipartFile image : images) {
@@ -78,6 +86,12 @@ public class PlaceService {
 
         List<String> newImageUrls = new ArrayList<>();
         if (images != null && !images.isEmpty()) {
+            // --- ▼▼▼ [수정] 파일 검증 로직 추가 ▼▼▼ ---
+            for (MultipartFile image : images) {
+                fileValidator.validateImageFile(image);
+            }
+            // --- ▲▲▲ [수정] 파일 검증 로직 추가 ▲▲▲ ---
+
             String dirPath = "places/" + geocodingResult.getSido();
             int sequence = place.getImageUrls().size() + 1;
             for (MultipartFile image : images) {
@@ -113,7 +127,7 @@ public class PlaceService {
                 .collect(Collectors.toList());
     }
 
-//    조회수 증가 서비스 로직
+    //    조회수 증가 서비스 로직
     @Transactional
     public void increaseViewCount(Long id) {
         Place place = placeRepository.findById(id)

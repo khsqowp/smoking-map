@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Place } from './MapContainer';
 import { useUser } from '@/context/UserContext';
 import EditRequestModal from '@/components/EditRequestModal';
-import { apiClient } from '@/utils/apiClient'; // apiClient import
+import { apiClient } from '@/utils/apiClient';
 
 type PlaceDetailProps = {
     place: Place | null;
@@ -23,22 +23,21 @@ const ReportModal = ({ placeId, onClose }: { placeId: number, onClose: () => voi
             return;
         }
         try {
-            // --- ▼▼▼ [수정] fetch를 apiClient로 교체 ▼▼▼ ---
             await apiClient(`/api/v1/places/${placeId}/report`, {
                 method: 'POST',
                 body: { type: reportType, content: reportType === 'OTHER' ? content : '' },
             });
             alert('신고가 정상적으로 접수되었습니다.');
             onClose();
-        } catch (err: any) {
+        } catch (err: any){
             alert(`오류: ${err.message}`);
         }
     };
 
     return (
         <div className="modal-overlay">
-            <div className="modal-content">
-                <h2>잘못된 정보 신고 (장소 ID: {placeId})</h2>
+            <div className="modal-content" style={{ backgroundColor: '#2a2a2a', color: '#E0E0E0', border: '1px solid #444' }}>
+                <h2 style={{textAlign: 'center', marginTop: '0'}}>잘못된 정보 신고 (장소 ID: {placeId})</h2>
                 <div style={{display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-start'}}>
                     <label><input type="radio" name="reportType" value="INCORRECT" checked={reportType === 'INCORRECT'} onChange={(e) => setReportType(e.target.value)} /> 잘못된 정보</label>
                     <label><input type="radio" name="reportType" value="DISAPPEARED" checked={reportType === 'DISAPPEARED'} onChange={(e) => setReportType(e.target.value)} /> 사라진 흡연구역</label>
@@ -49,7 +48,7 @@ const ReportModal = ({ placeId, onClose }: { placeId: number, onClose: () => voi
                         placeholder="상세 내용을 입력해주세요."
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        className="description-box"
+                        className="modal-textarea"
                     />
                 )}
                 <div className="modal-actions">
@@ -83,7 +82,6 @@ export default function PlaceDetail({ place, onClose }: PlaceDetailProps) {
 
     useEffect(() => {
         if (place) {
-            // --- ▼▼▼ [수정] fetch를 apiClient로 교체 ▼▼▼ ---
             apiClient(`/api/v1/places/${place.id}/view`, { method: 'POST' });
 
             if (place.roadAddress && place.roadAddress !== "주소 정보 없음") {
@@ -116,7 +114,6 @@ export default function PlaceDetail({ place, onClose }: PlaceDetailProps) {
         });
 
         try {
-            // --- ▼▼▼ [수정] fetch를 apiClient로 교체 ▼▼▼ ---
             await apiClient(`/api/v1/places/${place.id}/images`, {
                 method: 'POST',
                 body: formData,

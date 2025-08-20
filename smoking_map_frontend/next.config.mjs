@@ -1,25 +1,23 @@
 // next.config.mjs
 
 const nextConfig = {
-    // API 요청을 백엔드로 리다이렉트합니다.
     async rewrites() {
         return [
             {
-                source: "/api/:path*", // /api/로 시작하는 모든 요청
-                destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`, // 환경 변수 사용
+                source: "/api/:path*",
+                destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
             },
             {
-                source: "/oauth2/:path*", // OAuth2 로그인 요청
-                destination: `${process.env.NEXT_PUBLIC_API_URL}/oauth2/:path*`, // 환경 변수 사용
+                source: "/oauth2/:path*",
+                destination: `${process.env.NEXT_PUBLIC_API_URL}/oauth2/:path*`,
             },
             {
-                source: "/logout", // 로그아웃 요청
-                destination: `${process.env.NEXT_PUBLIC_API_URL}/logout`, // 환경 변수 사용
+                source: "/logout",
+                destination: `${process.env.NEXT_PUBLIC_API_URL}/logout`,
             }
         ];
     },
 
-    // 보안 헤더 설정
     async headers() {
         return [
             {
@@ -27,19 +25,33 @@ const nextConfig = {
                 headers: [
                     {
                         key: 'X-Frame-Options',
-                        value: 'SAMEORIGIN', // 클릭재킹 방지
+                        value: 'SAMEORIGIN',
                     },
                     {
                         key: 'X-Content-Type-Options',
-                        value: 'nosniff', // MIME 타입 스니핑 방지
+                        value: 'nosniff',
                     },
                     {
                         key: 'Content-Security-Policy',
-                        value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://oapi.map.naver.com; style-src 'self' 'unsafe-inline'; img-src * data:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self';", // XSS 및 데이터 주입 공격 방어
+                        // --- ▼▼▼ [수정] Content-Security-Policy 값 수정 ▼▼▼ ---
+                        value: [
+                            "default-src 'self'",
+                            // 'script-src'에 *.naver.net 추가
+                            "script-src 'self' 'unsafe-eval' 'unsafe-inline' oapi.map.naver.com *.naver.net",
+                            "style-src 'self' 'unsafe-inline' *.naver.net",
+                            // 'img-src'에 blob: 추가
+                            "img-src * data: blob:",
+                            "connect-src 'self' *.naver.com *.navercorp.com",
+                            "font-src 'self' data:",
+                            "object-src 'none'",
+                            "base-uri 'self'",
+                            "form-action 'self'",
+                        ].join('; '),
+                        // --- ▲▲▲ [수정] Content-Security-Policy 값 수정 ▲▲▲ ---
                     },
                     {
                         key: 'Referrer-Policy',
-                        value: 'origin-when-cross-origin', // Referer 헤더 정보 제어
+                        value: 'origin-when-cross-origin',
                     },
                 ],
             },

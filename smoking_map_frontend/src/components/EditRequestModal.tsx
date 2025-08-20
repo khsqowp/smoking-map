@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { apiClient } from '@/utils/apiClient'; // apiClient import
+import { apiClient } from '@/utils/apiClient';
 
 interface Props {
     placeId: number;
@@ -20,7 +20,6 @@ export default function EditRequestModal({ placeId, onClose }: Props) {
         }
         setIsSubmitting(true);
         try {
-            // --- ▼▼▼ [수정] fetch를 apiClient로 교체 ▼▼▼ ---
             await apiClient(`/api/v1/places/${placeId}/edit-requests`, {
                 method: 'POST',
                 body: { content },
@@ -36,14 +35,14 @@ export default function EditRequestModal({ placeId, onClose }: Props) {
 
     return (
         <div className="modal-overlay">
-            <div className="modal-content">
-                <h2>장소 정보 수정 제안</h2>
+            <div className="modal-content" style={{ backgroundColor: '#2a2a2a', color: '#E0E0E0', border: '1px solid #444' }}>
+                <h2 style={{textAlign: 'center', marginTop: '0'}}>장소 정보 수정 제안</h2>
+                {/* --- ▼▼▼ [수정] className 적용 및 인라인 스타일 제거 ▼▼▼ --- */}
                 <textarea
+                    className="modal-textarea"
                     placeholder="수정 제안 내용을 입력해주세요. (예: 주차장 입구 바로 옆입니다.)"
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    className="description-box"
-                    style={{ minHeight: '150px' }}
                 />
                 <div className="modal-actions">
                     <button onClick={onClose} className="btn btn-secondary" disabled={isSubmitting}>취소</button>

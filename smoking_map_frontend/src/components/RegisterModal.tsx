@@ -1,10 +1,10 @@
-// RegisterModal.tsx
+// src/components/RegisterModal.tsx
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { apiClient } from '@/utils/apiClient'; // apiClient import
+import { apiClient } from '@/utils/apiClient';
 
 type RegisterModalProps = {
     coords: { lat: number; lng: number };
@@ -14,17 +14,36 @@ type RegisterModalProps = {
 export default function RegisterModal({ coords, onClose }: RegisterModalProps) {
     const [description, setDescription] = useState('');
     const [imageFiles, setImageFiles] = useState<File[]>([]);
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
+
+    // --- ▼▼▼ [수정] Object URL 메모리 누수 방지를 위한 useEffect 추가 ▼▼▼ ---
+    useEffect(() => {
+        // 이 컴포넌트가 unmount되거나 imagePreviews가 변경될 때,
+        // 이전에 생성된 Object URL들을 메모리에서 해제합니다.
+        return () => {
+            imagePreviews.forEach(url => URL.revokeObjectURL(url));
+        };
+    }, [imagePreviews]);
+    // --- ▲▲▲ [수정] Object URL 메모리 누수 방지를 위한 useEffect 추가 ▲▲▲ ---
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const files = Array.from(e.target.files);
             const validImageFiles = files.filter(file => file.type.startsWith('image/'));
+
             if (files.length !== validImageFiles.length) {
                 alert('이미지 파일만 업로드할 수 있습니다.');
             }
+
             setImageFiles(validImageFiles);
+
+            // --- ▼▼▼ [수정] 기존 URL 해제 로직을 useEffect로 이동하여 여기서 제거 ▼▼▼ ---
+            // imagePreviews.forEach(url => URL.revokeObjectURL(url)); // 이 줄을 제거
+
+            const previews = validImageFiles.map(file => URL.createObjectURL(file));
+            setImagePreviews(previews);
         }
     };
 
@@ -36,7 +55,6 @@ export default function RegisterModal({ coords, onClose }: RegisterModalProps) {
         setIsSubmitting(true);
 
         const formData = new FormData();
-
         const requestDto = {
             latitude: coords.lat,
             longitude: coords.lng,
@@ -44,18 +62,15 @@ export default function RegisterModal({ coords, onClose }: RegisterModalProps) {
             description: description,
         };
         formData.append('requestDto', new Blob([JSON.stringify(requestDto)], { type: 'application/json' }));
-
         imageFiles.forEach(file => {
             formData.append('images', file);
         });
 
         try {
-            // --- ▼▼▼ [수정] fetch를 apiClient로 교체 ▼▼▼ ---
             await apiClient('/api/v1/places', {
                 method: 'POST',
                 body: formData,
             });
-
             alert('새로운 흡연구역이 등록되었습니다.');
             onClose();
             router.refresh();
@@ -69,32 +84,52 @@ export default function RegisterModal({ coords, onClose }: RegisterModalProps) {
 
     return (
         <div className="modal-overlay">
-            <div className="modal-content">
-                <h2>흡연구역 세부 정보 등록</h2>
-                <div>
-                    <p className="modal-section-title">사진 ({imageFiles.length}장)</p>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileChange}
-                    />
-                    <div style={{ marginTop: '10px', display: 'flex', gap: '5px', overflowX: 'auto' }}>
-                        {imageFiles.map((file, index) => (
-                            <img key={index} src={URL.createObjectURL(file)} alt={`preview ${index}`} style={{ width: '80px', height: '80px', objectFit: 'cover' }} />
-                        ))}
+            <div className="modal-content" style={{ backgroundColor: '#2a2a2a', color: '#E0E0E0', border: '1px solid #444' }}>
+                <h2 style={{ textAlign: 'center', marginTop: '0', marginBottom: '30px' }}>흡연구역 세부 정보 등록</h2>
+
+                <div className="modal-section">
+                    <p className="modal-section-title" style={{ color: '#E0E0E0', margin: '0 0 10px 0' }}>사진 ({imageFiles.length}장)</p>
+                    <div className="file-input-wrapper">
+                        <label htmlFor="imageUpload" className="btn btn-secondary file-input-label">
+                            파일 선택
+                        </label>
+                        <span className="file-name-display">
+                            {imageFiles.length > 0 ? `${imageFiles.length}개 파일 선택됨` : '선택된 파일 없음'}
+                        </span>
+                        <input
+                            id="imageUpload"
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleFileChange}
+                            className="file-input-hidden"
+                        />
                     </div>
+                    {imagePreviews.length > 0 && (
+                        <div style={{ marginTop: '15px', display: 'flex', gap: '10px', overflowX: 'auto', padding: '5px' }}>
+                            {imagePreviews.map((previewUrl, index) => (
+                                <img
+                                    key={index}
+                                    src={previewUrl}
+                                    alt={`preview ${index}`}
+                                    style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' }}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
-                <div>
-                    <p className="modal-section-title">상세설명</p>
+
+                <div className="modal-section">
+                    <p className="modal-section-title" style={{ color: '#E0E0E0', margin: '0 0 10px 0' }}>상세설명</p>
                     <textarea
-                        className="description-box"
+                        className="modal-textarea"
                         placeholder="이곳의 특징을 설명해주세요. (예: 벤치 있음, 지붕 있음 등)"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                     />
                 </div>
-                <div className="modal-actions">
+
+                <div className="modal-actions" style={{marginTop: '20px'}}>
                     <button className="btn btn-secondary" onClick={onClose} disabled={isSubmitting}>취소</button>
                     <button className="btn btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
                         {isSubmitting ? '등록 중...' : '최종 등록'}

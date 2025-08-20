@@ -5,7 +5,7 @@
 import Script from 'next/script';
 import { useRef, useState, useEffect, useCallback } from 'react'; // useCallback 추가
 import PlaceDetail from './PlaceDetail';
-import RegisterModal from './RegisterModal';
+import RegisterModal from '../components/RegisterModal';
 import { useUser } from '@/context/UserContext';
 
 declare global {
@@ -145,10 +145,12 @@ export default function MapContainer({ places }: MapContainerProps) {
                         <div className="center-pin-label">이곳에 흡연구역 등록</div>
                         <div className="center-pin"></div>
                     </div>
+                    {/* --- ▼▼▼ [수정] 버튼 디자인 통일 ▼▼▼ --- */}
                     <div className="register-actions">
-                        <button className="cancel-btn" onClick={handleCancelRegister}>취소</button>
-                        <button className="register-btn" onClick={handleConfirmLocation}>위치 확정</button>
+                        <button className="btn btn-secondary" onClick={handleCancelRegister}>취소</button>
+                        <button className="btn btn-primary" onClick={handleConfirmLocation}>위치 확정</button>
                     </div>
+                    {/* --- ▲▲▲ [수정] 버튼 디자인 통일 ▲▲▲ --- */}
                 </>
             )}
 
