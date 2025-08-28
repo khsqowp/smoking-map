@@ -1,0 +1,29 @@
+# smoking_map_frontend/Dockerfile.frontend
+
+# Stage 1: Build
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+
+# build.args로 받은 변수들을 빌드 과정에서 사용할 수 있도록 설정합니다.
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+# [추가] 네이버 맵 ID도 ARG로 선언해줍니다.
+ARG NEXT_PUBLIC_NAVER_MAP_CLIENT_ID
+ENV NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=${NEXT_PUBLIC_NAVER_MAP_CLIENT_ID}
+
+RUN npm run build
+
+# Stage 2: Production
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=builder /app/package*.json ./
+RUN npm install --omit=dev
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/next.config.mjs ./
+
+EXPOSE 3001
+CMD ["npm", "start", "--", "-p", "3001"]

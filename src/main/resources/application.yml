@@ -1,0 +1,100 @@
+# Naver API
+naver:
+  api:
+    client-id: ${NAVER_API_CLIENT_ID}
+    client-secret: ${NAVER_API_CLIENT_SECRET}
+
+# Spring Boot
+spring:
+  # Datasource
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # JPA
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+
+  # Spring Security OAuth2
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID}
+            client-secret: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET}
+            scope:
+              - profile
+              - email
+
+  # AWS
+  cloud:
+    aws:
+      credentials:
+        access-key: ${SPRING_CLOUD_AWS_CREDENTIALS_ACCESS_KEY}
+        secret-key: ${SPRING_CLOUD_AWS_CREDENTIALS_SECRET_KEY}
+      region:
+        static: ap-northeast-2
+      s3:
+        bucket: smoking-map-images-kknd03255
+      stack:
+        auto: false
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+
+# server
+server:
+  servlet:
+    session:
+      tracking-modes: cookie
+      timeout: 90d
+  tomcat:
+    remoteip:
+      protocol-header: X-Forwarded-Proto
+    use-relative-redirects: false
+  forward-headers-strategy: native
+
+# logging
+logging:
+  level:
+    org.hibernate.SQL: debug
+
+# admin email
+admin:
+  email: ${ADMIN_EMAIL}
+
+# bucket4j rate limiting
+bucket4j:
+  enabled: true
+  filters:
+    # POST requests limit (10 per minute)
+    - cache-name: buckets
+      id: post-rate-limit
+      rate-limits:
+        - bandwidths:
+            - capacity: 10
+              time: 1
+              unit: minutes
+      url-expression: "(/api/v1/places.*)|(/api/v1/reports.*)|(/api/v1/edit-requests.*)"
+      http-method: POST
+
+    # GET requests limit (100 per minute)
+    - cache-name: buckets
+      id: get-rate-limit
+      rate-limits:
+        - bandwidths:
+            - capacity: 100
+              time: 1
+              unit: minutes
+      url-expression: "/api/v1/.*"
+      http-method: GET

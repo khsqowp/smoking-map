@@ -1,0 +1,618 @@
+/* globals.css */
+
+/* --- ▼▼▼ 전체 화면 레이아웃 및 기본 스타일 ▼▼▼ --- */
+html,
+body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  background-color: #ffffff; /* 메인 화면 기본 배경은 흰색 */
+  color: #000000;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+/* --- ▲▲▲ 전체 화면 레이아웃 및 기본 스타일 ▲▲▲ --- */
+
+
+/* --- ▼▼▼ 메인 지도 화면 및 모달 공통 스타일 ▼▼▼ --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background-color: #f8f9fa;
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  z-index: 2001;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-popup {
+  position: relative;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  z-index: 2001;
+}
+
+.image-section {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+.image-section img { width: 100%; height: 100%; object-fit: cover; }
+
+.fab {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.current-location-btn {
+  position: absolute;
+  bottom: 86px; /* fab 버튼 바로 위에 위치하도록 조정 */
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  background-color: #ffffff; /* 흰색 배경 */
+  color: #333333; /* 어두운 아이콘 색상 */
+  border: 1px solid #e0e0e0;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.current-location-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.current-location-btn:active {
+  transform: scale(0.95);
+}
+
+.current-location-btn:disabled {
+  cursor: not-allowed;
+  background-color: #e0e0e0;
+}
+
+.center-pin-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -100%); /* 핀의 끝이 중앙에 오도록 조정 */
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none; /* 핀 아래 지도 조작이 가능하도록 이벤트 통과 */
+}
+
+.center-pin-label {
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.center-pin {
+  width: 32px;
+  height: 32px;
+  border-radius: 50% 50% 50% 0;
+  background: #d63031; /* 빨간색 계열 */
+  position: relative;
+  transform: rotate(-45deg);
+  border: 2px solid #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.register-actions {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  gap: 10px;
+}
+
+/* ... 기타 메인 화면에 필요한 기존 스타일 ... */
+/* --- ▲▲▲ 메인 지도 화면 및 모달 공통 스타일 ▲▲▲ --- */
+
+
+/* --- ▼▼▼ 관리자 페이지 다크 테마 (전체 레이아웃 및 사이드바 개선) ▼▼▼ --- */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #121212;
+  color: #E0E0E0;
+}
+
+.admin-sidebar-container {
+  width: 240px;
+  flex-shrink: 0;
+  background-color: #1E1E1E;
+  border-right: 1px solid #333;
+  padding: 20px 0;
+}
+
+.admin-main-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between; /* 햄버거 메뉴를 위해 수정 */
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #1E1E1E;
+  border-bottom: 1px solid #333;
+  height: 60px;
+}
+
+.admin-page-content {
+  flex-grow: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* Admin Sidebar Navigation */
+.admin-nav {
+  padding: 20px 10px;
+}
+
+.admin-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-nav ul li a {
+  display: block;
+  padding: 12px 15px;
+  margin-bottom: 5px;
+  color: #A0AEC0;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.admin-nav ul li a:hover {
+  background-color: #2a2a2a;
+  color: #ffffff;
+}
+
+.admin-nav ul li a.active {
+  background-color: #48BB78;
+  color: #1E1E1E;
+  font-weight: 600;
+}
+
+/* 요약 카드 */
+.summary-card {
+  flex: 1;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #1E1E1E;
+  border: 1px solid #333;
+  text-align: left;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* 테이블 */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #1E1E1E;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-table th, .admin-table td {
+  border-bottom: 1px solid #333;
+  padding: 12px 15px;
+  text-align: left;
+  vertical-align: top; /* --- ▼▼▼ [추가] 세로 정렬을 위쪽으로 맞춤 ▼▼▼ --- */
+}
+
+.admin-table th {
+  background-color: #2a2a2a;
+  font-weight: 600;
+  color: #E0E0E0;
+}
+
+/* 공통 버튼 스타일 */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary { background-color: #48BB78; color: #1E1E1E; }
+.btn-primary:hover { background-color: #38A169; }
+.btn-secondary { background-color: #2D3748; color: #E2E8F0; border: 1px solid #4A5568; }
+.btn-secondary:hover { background-color: #4A5568; }
+.btn-danger { background-color: #E53E3E; color: #FFFFFF; }
+.btn-danger:hover { background-color: #C53030; }
+
+/* 헤더 버튼 */
+.admin-header-link {
+  padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600;
+  background-color: #2D3748; color: #E2E8F0; border: 1px solid #4A5568;
+  transition: background-color 0.2s;
+}
+.admin-header-link:hover { background-color: #4A5568; }
+
+/* 반응형 스타일 */
+@media (max-width: 767px) {
+  /* ... 기존 모바일 반응형 코드 ... */
+}
+
+.info-popup {
+  position: relative;
+  background: #2a2a2a; /* 다크 테마 배경 */
+  color: #E0E0E0;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #444;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  z-index: 2001;
+}
+
+.image-section {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background-color: #1E1E1E; /* 어두운 배경 */
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 15px;
+  border: 1px solid #444;
+}
+
+.image-section img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.no-image-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  color: #777;
+  font-weight: 500;
+}
+
+.add-image-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(72, 187, 120, 0.9); /* 네온 그린 */
+  color: #1E1E1E;
+  font-size: 24px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s, transform 0.1s;
+}
+.add-image-btn:hover {
+  background-color: #38A169;
+}
+.add-image-btn:active {
+  transform: scale(0.95);
+}
+
+.address-section {
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.address-section h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.description-section {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.description-box-readonly {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 90px;
+  padding: 12px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background-color: #1E1E1E;
+  color: #E0E0E0;
+  font-size: 15px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.edit-request-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+
+.bottom-actions {
+  display: flex;
+  justify-content: space-between; /* 버튼을 양쪽 끝으로 배치 */
+  align-items: center;
+  margin-top: 15px;
+}
+
+.link-style-button {
+  background: none;
+  border: none;
+  color: #48BB78; /* 네온 그린 */
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+  font-weight: bold;
+}
+.link-style-button:hover {
+  color: #38A169;
+}
+
+.image-viewer-modal-content {
+  background-color: #1E1E1E;
+  color: #E0E0E0;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #444;
+  width: 90%;
+  max-width: 800px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  z-index: 2001;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  max-height: 70vh;
+  overflow-y: auto;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #444;
+}
+
+.image-grid-item {
+  width: 100%;
+  height: 150px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.image-grid-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+}
+
+.modal-content {
+  background-color: #282c34; /* 더 어두운 배경 */
+  color: #abb2bf; /* 밝은 텍스트 */
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+  width: 90%;
+  max-width: 600px;
+}
+
+.modal-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #61afef; /* 강조 색상 */
+}
+
+.modal-section {
+  margin-bottom: 20px;
+}
+
+.modal-label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #c678dd; /* 라벨 강조 색상 */
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #44475a;
+  border-radius: 4px;
+  background-color: #3e4451;
+  color: #d19a66;
+  box-sizing: border-box;
+}
+
+.modal-textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #44475a;
+  border-radius: 4px;
+  background-color: #3e4451;
+  color: #d19a66;
+  box-sizing: border-box;
+  min-height: 100px;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.image-preview-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #44475a;
+}
+
+.image-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid #61afef;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modal-actions .btn-primary {
+  background-color: #61afef;
+  color: #282c34;
+}
+
+.modal-actions .btn-secondary {
+  background-color: #44475a;
+  color: #abb2bf;
+}
+
+.modal-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.file-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 실제 input 태그는 화면에서 숨김 */
+.file-input-hidden {
+  display: none;
+}
+
+.file-input-label {
+  /* 이전에 정의한 .btn, .btn-secondary 스타일을 그대로 활용 */
+  display: inline-block; /* label을 버튼처럼 보이게 함 */
+}
+
+.file-name-display {
+  color: #A0AEC0;
+  font-size: 14px;
+}
+/* --- ▲▲▲ [추가] 커스텀 파일 선택 버튼 스타일 ▲▲▲ --- */
+
+.modal-textarea {
+  width: 100%; /* 부모 요소(모달창)의 너비에 맞춤 */
+  min-height: 120px;
+  padding: 12px;
+  box-sizing: border-box; /* 패딩과 테두리를 너비에 포함 */
+
+  background-color: #1E1E1E;
+  color: #E0E0E0;
+  border: 1px solid #4A5568;
+  border-radius: 8px; /* 모달창과 유사한 둥근 모서리 */
+
+  font-size: 15px;
+  font-family: inherit;
+  resize: vertical; /* 수직으로만 크기 조절 가능 */
+}
+

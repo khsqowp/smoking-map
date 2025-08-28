@@ -1,0 +1,28 @@
+# 이 파일은 GitHub Actions가 아닌 Dependabot을 위한 설정 파일입니다.
+version: 2
+updates:
+  # 백엔드(Gradle) 의존성 검사 규칙
+  - package-ecosystem: "gradle"
+    # build.gradle 파일이 있는 위치
+    directory: "/"
+    schedule:
+      # 매주 월요일 오전에 검사
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Seoul"
+    # Pull Request에 대한 기본 설정
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+
+  # 프론트엔드(npm) 의존성 검사 규칙
+  - package-ecosystem: "npm"
+    # package.json 파일이 있는 위치
+    directory: "/smoking_map_frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Seoul"
+    commit-message

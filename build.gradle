@@ -1,0 +1,91 @@
+// build.gradle
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.4'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.smoking_map'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springCloudVersion', "2023.0.0")
+    set('springCloudAwsVersion', "3.1.1")
+}
+
+dependencies {
+    // AWS SDK v2 for Java - BOM(Bill of Materials) 추가
+    // BOM을 사용하면 각 모듈의 버전을 일일이 명시하지 않아도 호환되는 버전으로 자동 관리해줍니다.
+    // spring cloud aws secrets manager starter: secrets manager 연동 자동화
+
+
+    // JSON 파싱을 위한 Jackson 라이브러리 (이미 있다면 추가할 필요 없음)
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+
+    // Secrets Manager가 반환하는 JSON을 쉽게 다루기 위한 라이브러리 (Jackson)
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.1'
+
+    // --- ▼▼▼ [수정] Bucket4j 라이브러리를 최종 공식 정보로 변경 ▼▼▼ ---
+    implementation 'com.giffing.bucket4j.spring.boot.starter:bucket4j-spring-boot-starter:0.9.0'
+
+    // 메타데이터 추출 라이브러리
+    implementation 'com.drewnoakes:metadata-extractor:2.19.0'
+
+    // spring web: rest api 및 내장 웹 서버
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    // spring data jpa: 데이터베이스 연동
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // spring security: 보안 및 인증/인가
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    // oauth2 client: 구글 소셜 로그인
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    // validation: 데이터 유효성 검증
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    // mysql driver: mysql 데이터베이스 연결
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    // h2 database: 개발 및 테스트용
+    runtimeOnly 'com.h2database:h2'
+    // lombok: 반복적인 코드 자동 생성
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    // devtools: 개발 편의 기능 (자동 재시작 등)
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    // 테스트
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    // spring cloud aws s3 starter
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
+    // 이미지 리사이징 라이브러리
+    implementation 'org.imgscalr:imgscalr-lib:4.2'
+    // apache commons lang3
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:${springCloudAwsVersion}"
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
