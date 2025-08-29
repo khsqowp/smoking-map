@@ -32,11 +32,12 @@ services:
       dockerfile: Dockerfile.frontend
       args:
         - NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=rvkc2mgm2i
+        - NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-4741622645913721
     container_name: frontend-1
     ports:
       - "3001:3001"
     environment:
-      - NEXT_PUBLIC_API_URL=https://smokingmap.duckdns.org:8080
+      -  NEXT_PUBLIC_API_URL=http://backend:8080
       - NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=rvkc2mgm2i
     depends_on:
       - backend

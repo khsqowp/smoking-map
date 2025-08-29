@@ -8,6 +8,8 @@ import AppInitializer from "@/components/AppInitializer";
 // --- ▼▼▼ [추가] import ▼▼▼ ---
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 // --- ▲▲▲ [추가] import ▲▲▲ ---
+import AdSenseSnippet from "@/components/AdSenseSnippet";
+
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -24,9 +26,12 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="ko">
-        {/* --- ▼▼▼ [추가] GoogleAnalytics 컴포넌트 추가 ▼▼▼ --- */}
-        <GoogleAnalytics />
-        {/* --- ▲▲▲ [추가] GoogleAnalytics 컴포넌트 추가 ▲▲▲ --- */}
+        {/* --- ▼▼▼ [수정] <head> 태그를 만들고 그 안에 두 컴포넌트를 넣습니다. ▼▼▼ --- */}
+        <head>
+            <GoogleAnalytics />
+            <AdSenseSnippet />
+        </head>
+        {/* --- ▲▲▲ [수정] <head> 태그를 만들고 그 안에 두 컴포넌트를 넣습니다. ▲▲▲ --- */}
         <body className={inter.className}>
         <UserProvider>
             <AppInitializer />
