@@ -1,49 +1,23 @@
-# docker-compose.yml
+version: '3.8'
 services:
-  nginx:
-    image: smoking_map-nginx:latest
-    container_name: nginx
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: smoking_map_backend_green
     ports:
-      - "80:80"
-      - "443:443"
+      - "8081:8080" # 호스트 포트를 8081로 변경
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/certs:/etc/nginx/certs
-    depends_on:
-      - frontend
-      - backend
-    networks:
-      - smoking-map-net
+      - /var/log/smoking_map:/logs
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
     restart: always
 
-  backend:
-    image: smoking_map-backend:latest
-    container_name: backend-1
-    ports:
-      - "8080:8080"
-    env_file: ./.env
-    networks:
-      - smoking-map-net
-
   frontend:
-    image: smoking_map-frontend:latest
     build:
       context: ./smoking_map_frontend
       dockerfile: Dockerfile.frontend
-      args:
-        - NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=rvkc2mgm2i
-        - NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-4741622645913721
-    container_name: frontend-1
+    container_name: smoking_map_frontend_green
     ports:
-      - "3001:3001"
-    environment:
-      -  NEXT_PUBLIC_API_URL=http://backend:8080
-      - NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=rvkc2mgm2i
-    depends_on:
-      - backend
-    networks:
-      - smoking-map-net
-
-networks:
-  smoking-map-net:
-    driver: bridge
+      - "3001:3000" # 호스트 포트를 3001로 변경
+    restart: always

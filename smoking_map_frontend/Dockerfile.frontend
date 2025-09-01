@@ -1,4 +1,4 @@
-# smoking_map_frontend/Dockerfile.frontend
+# smoking_map_frontend/Dockerfile.frontend (최종 개선 버전)
 
 # Stage 1: Build
 FROM node:20-alpine AS builder
@@ -10,15 +10,10 @@ COPY . .
 # build.args로 받은 변수들을 빌드 과정에서 사용할 수 있도록 설정합니다.
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-# [추가] 네이버 맵 ID도 ARG로 선언해줍니다.
+
 ARG NEXT_PUBLIC_NAVER_MAP_CLIENT_ID
 ENV NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=${NEXT_PUBLIC_NAVER_MAP_CLIENT_ID}
 
-# [추가] 애드센스 ID도 ARG로 선언해줍니다.
-ARG NEXT_PUBLIC_ADSENSE_CLIENT_ID
-ENV NEXT_PUBLIC_ADSENSE_CLIENT_ID=${NEXT_PUBLIC_ADSENSE_CLIENT_ID}
-
-# [추가] 애드센스 ID도 ARG로 선언해줍니다.
 ARG NEXT_PUBLIC_ADSENSE_CLIENT_ID
 ENV NEXT_PUBLIC_ADSENSE_CLIENT_ID=${NEXT_PUBLIC_ADSENSE_CLIENT_ID}
 
@@ -33,5 +28,7 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/next.config.mjs ./
 
-EXPOSE 3001
-CMD ["npm", "start", "--", "-p", "3001"]
+# 컨테이너는 표준 포트 3000을 사용
+EXPOSE 3000
+# docker-compose에서 포트를 지정하므로 CMD에서는 기본값으로 실행
+CMD ["npm", "start"]
