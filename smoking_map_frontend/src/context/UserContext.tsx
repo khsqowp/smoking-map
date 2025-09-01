@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import { apiClient } from '@/utils/apiClient';
 
 // [수정] User 타입에 role 필드 추가
 type User = {
@@ -26,13 +27,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const res = await fetch('/api/v1/user', { credentials: 'include' });
-                if (res.ok) {
-                    const data = await res.json();
-                    setUser(data);
-                } else {
-                    setUser(null);
-                }
+                const data = await apiClient('/api/v1/user');
+                setUser(data);
             } catch (error) {
                 console.error("Failed to fetch user:", error);
                 setUser(null);

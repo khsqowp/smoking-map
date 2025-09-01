@@ -1,6 +1,8 @@
 package com.smoking_map.smoking_map.service.admin;
 
 import com.smoking_map.smoking_map.domain.announcement.Announcement;
+import com.smoking_map.smoking_map.domain.activity_log.UserActivityLog;
+import com.smoking_map.smoking_map.domain.activity_log.UserActivityLogRepository;
 import com.smoking_map.smoking_map.domain.announcement.AnnouncementRepository;
 import com.smoking_map.smoking_map.domain.edit_request.EditRequest;
 import com.smoking_map.smoking_map.domain.edit_request.EditRequestRepository;
@@ -37,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.Objects;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +54,7 @@ public class AdminService {
     private final AnnouncementRepository announcementRepository; // --- ▼▼▼ [추가] 의존성 주입 ▼▼▼ ---
     private final FavoriteRepository favoriteRepository; // --- ▼▼▼ [추가] 의존성 주입 ▼▼▼ ---
     private final ReviewRepository reviewRepository; // --- ▼▼▼ [추가] 의존성 주입 ▼▼▼ ---
+    private final UserActivityLogRepository userActivityLogRepository;
 
 
 
@@ -501,5 +506,45 @@ public class AdminService {
                 reviewCount != null ? reviewCount.intValue() : 0
         );
         // --- ▲▲▲ [수정] 새로운 Repository 메서드를 사용하도록 변경 ▲▲▲ ---
+    }
+
+    public List<AdminActivityLogDto> getActivityLogs() {
+        List<UserActivityLog> logs = userActivityLogRepository.findTop100ByOrderByIdDesc();
+
+        List<Long> userIds = logs.stream()
+                .map(UserActivityLog::getUserId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<Long, User> userMap = userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        return logs.stream()
+                .map(log -> {
+                    String userType;
+                    String identifier;
+
+                    if (log.getUserId() != null) {
+                        userType = "로그인";
+                        User user = userMap.get(log.getUserId());
+                        identifier = (user != null && user.getEmail() != null) ? user.getEmail() : "ID: " + log.getUserId() + " (사용자 정보 없음)";
+                    } else {
+                        userType = "비회원";
+                        identifier = log.getSessionId();
+                    }
+
+                    return AdminActivityLogDto.builder()
+                            .id(log.getId())
+                            .activityTime(log.getCreatedAt().format(formatter))
+                            .latitude(log.getLatitude())
+                            .longitude(log.getLongitude())
+                            .userType(userType)
+                            .identifier(identifier)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

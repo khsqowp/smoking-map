@@ -140,4 +140,9 @@ public class AdminApiController {
         return ResponseEntity.ok(adminService.getDashboardChartData(range));
     }
 
+    @GetMapping("/activity-logs")
+    public ResponseEntity<List<AdminActivityLogDto>> getActivityLogs() {
+        return ResponseEntity.ok(adminService.getActivityLogs());
+    }
+
 }
