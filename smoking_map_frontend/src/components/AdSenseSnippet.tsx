@@ -1,8 +1,8 @@
-// src/components/AdSenseSnippet.tsx
+// src/components/AdSenseSnippet.tsx (수정된 최종 버전)
 
 'use client';
 
-import Script from 'next/script';
+// 'next/script' import를 제거합니다.
 
 export default function AdSenseSnippet() {
     const adClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
@@ -14,11 +14,11 @@ export default function AdSenseSnippet() {
     }
 
     return (
-        <Script
+        // Next.js의 <Script> 컴포넌트를 일반 <script> 태그로 변경합니다.
+        <script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`}
             crossOrigin="anonymous"
-            strategy="afterInteractive"
-        />
+        ></script>
     );
 }

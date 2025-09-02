@@ -1,3 +1,4 @@
+# Green (V1.1.0) 용 최종 docker-compose.yml
 version: '3.8'
 services:
   backend:
@@ -6,18 +7,25 @@ services:
       dockerfile: Dockerfile.backend
     container_name: smoking_map_backend_green
     ports:
-      - "8081:8080" # 호스트 포트를 8081로 변경
+      - "8081:8080"
     volumes:
       - /var/log/smoking_map:/logs
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+    env_file: ./.env
     restart: always
 
   frontend:
-    build:
-      context: ./smoking_map_frontend
-      dockerfile: Dockerfile.frontend
-    container_name: smoking_map_frontend_green
-    ports:
-      - "3001:3000" # 호스트 포트를 3001로 변경
-    restart: always
+     build:
+       context: ./smoking_map_frontend
+       dockerfile: Dockerfile.frontend
+       args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+        - NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=${NEXT_PUBLIC_NAVER_MAP_CLIENT_ID}
+        - NEXT_PUBLIC_ADSENSE_CLIENT_ID=${NEXT_PUBLIC_ADSENSE_CLIENT_ID}
+        - INTERNAL_API_URL=${INTERNAL_API_URL}
+     container_name: smoking_map_frontend_green
+     ports:
+      - "3001:3000"
+     env_file: ./.env
+     restart: always

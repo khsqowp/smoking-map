@@ -2,18 +2,20 @@
 
 const nextConfig = {
     async rewrites() {
+        const internalApiUrl = process.env.INTERNAL_API_URL;
+
         return [
             {
                 source: "/api/:path*",
-                destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
+                destination: `${internalApiUrl}/api/:path*`,
             },
             {
                 source: "/oauth2/:path*",
-                destination: `${process.env.NEXT_PUBLIC_API_URL}/oauth2/:path*`,
+                destination: `${internalApiUrl}/oauth2/:path*`,
             },
             {
                 source: "/logout",
-                destination: `${process.env.NEXT_PUBLIC_API_URL}/logout`,
+                destination: `${internalApiUrl}/logout`,
             }
         ];
     },

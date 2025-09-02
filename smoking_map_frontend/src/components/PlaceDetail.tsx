@@ -121,7 +121,7 @@ export default function PlaceDetail({ place, onClose, onFavoriteChange, onDataCh
     const handleToggleFavorite = async () => {
         if (!user) {
             if(confirm('로그인이 필요한 기능입니다. 로그인 페이지로 이동하시겠습니까?')) {
-                window.location.href = '/oauth2/authorization/google';
+                window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/oauth2/authorization/google`;
             }
             return;
         }
@@ -145,7 +145,7 @@ export default function PlaceDetail({ place, onClose, onFavoriteChange, onDataCh
             fileInputRef.current?.click();
         } else {
             if(confirm('로그인이 필요한 기능입니다. 로그인 페이지로 이동하시겠습니까?')) {
-                window.location.href = '/oauth2/authorization/google';
+                window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/oauth2/authorization/google`;
             }
         }
     };
