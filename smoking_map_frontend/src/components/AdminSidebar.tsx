@@ -19,17 +19,17 @@ export default function AdminSidebar() {
                 <li>
                     <Link href="/admin/reports" className={pathname === '/admin/reports' ? 'active' : ''}> 신고 관리 </Link>
                 </li>
-                {/* --- ▼▼▼ [추가] 공지 관리 메뉴 ▼▼▼ --- */}
+                <li>
+                    <Link href="/admin/users" className={pathname === '/admin/users' ? 'active' : ''}> 사용자 관리 </Link>
+                </li>
                 <li>
                     <Link href="/admin/announcements"
                         className={pathname === '/admin/announcements' ? 'active' : ''}> 공지 관리 </Link>
                 </li>
-                {/* --- ▲▲▲ [추가] 공지 관리 메뉴 ▲▲▲ --- */} {/* --- ▼▼▼ [추가] 활동 분석 메뉴 ▼▼▼ --- */}
                 <li>
                     <Link href="/admin/activity-logs"
                         className={pathname === '/admin/activity-logs' ? 'active' : ''}> 활동 분석 </Link>
                 </li>
-                {/* --- ▲▲▲ [추가] 활동 분석 메뉴 ▲▲▲ --- */}
             </ul>
         </nav>
     );

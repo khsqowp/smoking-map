@@ -32,7 +32,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 // 실제 서비스 도메인을 CORS 허용 목록에 추가합니다.
-                .allowedOrigins("http://localhost:3001", "https://smokingmap.duckdns.org")
+                .allowedOrigins("http://localhost:3000", "https://smokingmap.duckdns.org")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);

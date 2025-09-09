@@ -55,6 +55,8 @@ dependencies {
 
     // spring web: rest api 및 내장 웹 서버
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    // redis: cache, session store
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     // spring data jpa: 데이터베이스 연동
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     // spring security: 보안 및 인증/인가

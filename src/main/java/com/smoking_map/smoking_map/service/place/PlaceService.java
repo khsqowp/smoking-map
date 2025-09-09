@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -166,6 +167,7 @@ public class PlaceService {
         return String.format("%s_%s_%s_%d.%s", dateTime, sanitizedSigungu, randomString, sequence, extension);
     }
 
+    @Cacheable(value = "places", key = "#id", unless = "#result == null")
     @Transactional(readOnly = true)
     public PlaceResponseDto findById(Long id) {
         Place entity = placeRepository.findById(id)

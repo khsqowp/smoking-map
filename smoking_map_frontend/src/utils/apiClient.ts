@@ -1,8 +1,16 @@
-// src/utils/apiClient.ts
+// src/utils/apiClient.ts (최종 완성 버전)
+
+// 코드가 서버에서 실행되는지 클라이언트에서 실행되는지 확인
+const IS_SERVER = typeof window === 'undefined';
+
+// 실행 환경에 따라 다른 기본 URL을 사용
+const BASE_URL = IS_SERVER
+  ? 'http://backend:8080' // 서버 환경에서는 Docker 서비스 이름으로 직접 통신
+  : process.env.NEXT_PUBLIC_API_URL; // 클라이언트 환경에서는 외부 접속용 URL 사용
 
 // 쿠키에서 특정 이름의 값을 읽어오는 함수
 function getCookie(name: string): string | null {
-    if (typeof document === 'undefined') {
+    if (IS_SERVER) {
         return null;
     }
     const value = `; ${document.cookie}`;
@@ -24,6 +32,9 @@ export const apiClient = async (url: string, options: ApiClientOptions = {}) => 
     const csrfToken = getCookie('XSRF-TOKEN');
     const headers = new Headers(options.headers);
 
+    // BASE_URL을 사용하여 전체 URL을 구성합니다.
+    const fullUrl = url.startsWith('http') ? url : `${BASE_URL}${url}`;
+
     if (csrfToken) {
         headers.set('X-XSRF-TOKEN', csrfToken);
     }
@@ -32,7 +43,7 @@ export const apiClient = async (url: string, options: ApiClientOptions = {}) => 
     const finalOptions: RequestInit = {
         method: options.method,
         headers: headers,
-        credentials: options.credentials,
+        credentials: options.credentials || 'include',
         cache: options.cache,
     };
 
@@ -45,7 +56,7 @@ export const apiClient = async (url: string, options: ApiClientOptions = {}) => 
         }
     }
 
-    const response = await fetch(url, finalOptions);
+    const response = await fetch(fullUrl, finalOptions);
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: response.statusText }));

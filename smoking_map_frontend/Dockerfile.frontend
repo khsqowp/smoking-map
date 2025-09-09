@@ -17,6 +17,9 @@ ENV NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=${NEXT_PUBLIC_NAVER_MAP_CLIENT_ID}
 ARG NEXT_PUBLIC_ADSENSE_CLIENT_ID
 ENV NEXT_PUBLIC_ADSENSE_CLIENT_ID=${NEXT_PUBLIC_ADSENSE_CLIENT_ID}
 
+ARG INTERNAL_API_URL
+ENV INTERNAL_API_URL=${INTERNAL_API_URL}
+
 RUN npm run build
 
 # Stage 2: Production
@@ -32,3 +35,5 @@ COPY --from=builder /app/next.config.mjs ./
 EXPOSE 3000
 # docker-compose에서 포트를 지정하므로 CMD에서는 기본값으로 실행
 CMD ["npm", "start"]
+
+

@@ -39,10 +39,7 @@ export default function Header() {
                         </a>
                     </div>
                 ) : (
-                    <a href="/oauth2/authorization/google" style={{
-                        backgroundColor: '#4285F4', color: 'white', padding: '8px 15px',
-                        borderRadius: '5px', textDecoration: 'none', fontSize: '14px'
-                    }}>
+                    <a href={`${process.env.NEXT_PUBLIC_API_URL}/oauth2/authorization/google`} style={{backgroundColor: '#4285F4', color: 'white', padding: '8px 15px', borderRadius: '5px', textDecoration: 'none', fontSize: '14px'}}>
                         Google로 로그인
                     </a>
                 )}
