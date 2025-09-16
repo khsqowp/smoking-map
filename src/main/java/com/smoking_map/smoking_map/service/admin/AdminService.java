@@ -23,6 +23,8 @@ import com.smoking_map.smoking_map.service.s3.S3Uploader;
 import com.smoking_map.smoking_map.web.dto.admin.AdminPlaceDetailDto;
 import com.smoking_map.smoking_map.web.dto.admin.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -155,6 +157,7 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
+    @CacheEvict(value = {"allPlaces", "searchResults", "places"}, allEntries = true)
     @Transactional
     public void updatePlaceDescription(Long placeId, PlaceUpdateRequestDto requestDto) {
         Place place = placeRepository.findById(placeId)
@@ -166,6 +169,7 @@ public class AdminService {
         pendingRequests.forEach(request -> request.updateStatus(RequestStatus.REVIEWED));
     }
 
+    @CacheEvict(value = {"allPlaces", "searchResults", "places"}, allEntries = true)
     @Transactional
     public void deletePlace(Long placeId) {
         Place place = placeRepository.findById(placeId)

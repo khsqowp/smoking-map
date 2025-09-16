@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,6 +50,7 @@ public class PlaceService {
     private final FavoriteRepository favoriteRepository;
 
 
+    @CacheEvict(value = {"allPlaces", "searchResults"}, allEntries = true)
     @Transactional
     public Long save(PlaceSaveRequestDto requestDto, List<MultipartFile> images) throws IOException {
         SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
@@ -124,6 +126,7 @@ public class PlaceService {
         return builder.build();
     }
 
+    @CacheEvict(value = {"places", "allPlaces"}, allEntries = true)
     @Transactional
     public List<String> addImages(Long id, List<MultipartFile> images) throws IOException {
         Place place = placeRepository.findById(id)
@@ -185,6 +188,7 @@ public class PlaceService {
         return new PlaceResponseDto(entity, false);
     }
 
+    @Cacheable(value = "allPlaces", unless = "#result == null || #result.isEmpty()")
     @Transactional(readOnly = true)
     public List<PlaceResponseDto> findAll() {
         // --- ▼▼▼ [수정] 로그인 사용자 즐겨찾기 여부 확인 로직 추가 ▼▼▼ ---
@@ -213,6 +217,7 @@ public class PlaceService {
     }
 
     // --- ▼▼▼ [추가] 주소 검색 서비스 메서드 ▼▼▼ ---
+    @Cacheable(value = "searchResults", key = "#keyword", unless = "#result == null || #result.isEmpty()")
     @Transactional(readOnly = true)
     public List<PlaceResponseDto> searchPlacesByKeyword(String keyword) {
         if (!StringUtils.hasText(keyword)) {
