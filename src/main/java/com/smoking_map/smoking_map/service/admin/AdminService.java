@@ -547,4 +547,11 @@ public class AdminService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public List<HeatmapDto> getHeatmapData() {
+        List<UserActivityLog> logs = userActivityLogRepository.findAll();
+        return logs.stream()
+                .map(log -> new HeatmapDto(log.getLatitude(), log.getLongitude()))
+                .collect(Collectors.toList());
+    }
 }

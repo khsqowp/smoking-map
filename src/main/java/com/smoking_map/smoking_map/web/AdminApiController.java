@@ -145,4 +145,9 @@ public class AdminApiController {
         return ResponseEntity.ok(adminService.getActivityLogs());
     }
 
+    @GetMapping("/activity-logs/heatmap")
+    public ResponseEntity<List<HeatmapDto>> getHeatmapData() {
+        return ResponseEntity.ok(adminService.getHeatmapData());
+    }
+
 }
