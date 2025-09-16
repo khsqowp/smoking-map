@@ -51,17 +51,17 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 //배포용
-                .logout(logout -> logout
-                        .logoutSuccessUrl("https://smokingmap.duckdns.org")                )
-                .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("https://smokingmap.duckdns.org", true)
+//                .logout(logout -> logout
+//                        .logoutSuccessUrl("https://smokingmap.duckdns.org")                )
+//                .oauth2Login(oauth2 -> oauth2
+//                        .defaultSuccessUrl("https://smokingmap.duckdns.org", true)
 
                 //내부 테스트용
-//                .logout(logout -> logout
-//                        .logoutSuccessUrl("/")
-//                )
-//                .oauth2Login(oauth2 -> oauth2
-//                        .defaultSuccessUrl("/", true)
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/")
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/", true)
 
 
                         .userInfoEndpoint(userInfo -> userInfo

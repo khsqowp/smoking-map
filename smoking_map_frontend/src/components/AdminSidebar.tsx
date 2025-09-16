@@ -30,6 +30,9 @@ export default function AdminSidebar() {
                     <Link href="/admin/activity-logs"
                         className={pathname === '/admin/activity-logs' ? 'active' : ''}> 활동 분석 </Link>
                 </li>
+                <li>
+                    <Link href="/admin/heatmap" className={pathname === '/admin/heatmap' ? 'active' : ''}> 히트맵 </Link>
+                </li>
             </ul>
         </nav>
     );

@@ -6,7 +6,7 @@ import MapContainer, { Place } from "@/components/MapContainer"; // Place 타입
 async function getPlaces(): Promise<Place[]> {
   try {
     // 서버 사이드 렌더링 시에는 Docker 내부 네트워크 주소인 서비스 이름을 사용합니다.
-    const apiUrl = 'http://backend:8080'; //마지막 베포시 변경  'http://backend:8080'     | 내부 개발시 'http://localhost:8080'
+    const apiUrl = 'http://localhost:8080'; //마지막 베포시 변경  'http://backend:8080'     | 내부 개발시 'http://localhost:8080'
     const res = await fetch(`${apiUrl}/api/v1/places`, { cache: 'no-store' });
 
 
