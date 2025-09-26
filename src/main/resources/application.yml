@@ -26,7 +26,7 @@ spring:
   # Redis & Cache
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
   cache:
     type: redis
@@ -42,8 +42,8 @@ spring:
             scope:
               - profile
               - email
-#            redirect-uri: "https://smokingmap.duckdns.org/login/oauth2/code/{registrationId}"
-            redirect-uri: "http://localhost:8080/login/oauth2/code/{registrationId}" # 이 부분을 수정
+            redirect-uri: "https://smokingmap.duckdns.org/login/oauth2/code/{registrationId}"
+#            redirect-uri: "http://localhost:8080/login/oauth2/code/{registrationId}" # 이 부분을 수정
   # AWS
   cloud:
     aws:

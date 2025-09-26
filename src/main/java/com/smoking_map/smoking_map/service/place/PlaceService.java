@@ -50,7 +50,7 @@ public class PlaceService {
     private final FavoriteRepository favoriteRepository;
 
 
-    @CacheEvict(value = {"allPlaces", "searchResults"}, allEntries = true)
+    @CacheEvict(value = {"basicPlaces"}, allEntries = true)
     @Transactional
     public Long save(PlaceSaveRequestDto requestDto, List<MultipartFile> images) throws IOException {
         SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
@@ -126,7 +126,7 @@ public class PlaceService {
         return builder.build();
     }
 
-    @CacheEvict(value = {"places", "allPlaces"}, allEntries = true)
+    @CacheEvict(value = {"basicPlaces"}, allEntries = true)
     @Transactional
     public List<String> addImages(Long id, List<MultipartFile> images) throws IOException {
         Place place = placeRepository.findById(id)
@@ -170,7 +170,6 @@ public class PlaceService {
         return String.format("%s_%s_%s_%d.%s", dateTime, sanitizedSigungu, randomString, sequence, extension);
     }
 
-    @Cacheable(value = "places", key = "#id", unless = "#result == null")
     @Transactional(readOnly = true)
     public PlaceResponseDto findById(Long id) {
         Place entity = placeRepository.findById(id)
@@ -188,7 +187,6 @@ public class PlaceService {
         return new PlaceResponseDto(entity, false);
     }
 
-    @Cacheable(value = "allPlaces", unless = "#result == null || #result.isEmpty()")
     @Transactional(readOnly = true)
     public List<PlaceResponseDto> findAll() {
         // --- ▼▼▼ [수정] 로그인 사용자 즐겨찾기 여부 확인 로직 추가 ▼▼▼ ---
@@ -217,7 +215,6 @@ public class PlaceService {
     }
 
     // --- ▼▼▼ [추가] 주소 검색 서비스 메서드 ▼▼▼ ---
-    @Cacheable(value = "searchResults", key = "#keyword", unless = "#result == null || #result.isEmpty()")
     @Transactional(readOnly = true)
     public List<PlaceResponseDto> searchPlacesByKeyword(String keyword) {
         if (!StringUtils.hasText(keyword)) {
@@ -226,6 +223,13 @@ public class PlaceService {
         return placeRepository.findByAddressKeyword(keyword).stream()
                 .map(PlaceResponseDto::new)
                 .collect(Collectors.toList());
+    }
+
+    // --- ▼▼▼ [추가] 기본 장소 정보 캐싱용 메서드 ▼▼▼ ---
+    @Cacheable(value = "basicPlaces", unless = "#result == null || #result.isEmpty()")
+    @Transactional(readOnly = true)
+    public List<Place> findAllBasicPlaces() {
+        return placeRepository.findAll();
     }
 
 

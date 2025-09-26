@@ -1,6 +1,12 @@
 # Green (V1.1.0) 용 최종 docker-compose.yml
 version: '3.8'
 services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - default
   backend:
     build:
       context: .

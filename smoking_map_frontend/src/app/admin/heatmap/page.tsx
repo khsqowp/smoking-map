@@ -18,18 +18,14 @@ interface NaverLatLng {
 interface NaverHeatMap {
     setMap: (map: NaverMap | null) => void;
 }
-declare global {
-    interface Window {
-        naver: {
-            maps: {
-                Map: new (mapDiv: string | HTMLElement, mapOptions?: object) => NaverMap;
-                LatLng: new (lat: number, lng: number) => NaverLatLng;
-                visualization: {
-                    HeatMap: new (options: object) => NaverHeatMap;
-                };
-            };
+interface NaverMapForHeatmap {
+    maps: {
+        Map: new (mapDiv: string | HTMLElement, mapOptions?: object) => NaverMap;
+        LatLng: new (lat: number, lng: number) => NaverLatLng;
+        visualization: {
+            HeatMap: new (options: object) => NaverHeatMap;
         };
-    }
+    };
 }
 
 type HeatmapData = {
@@ -45,13 +41,13 @@ export default function AdminHeatmapPage() {
 
     // 지도 초기화 함수
     const initializeMap = useCallback(() => {
-        if (!mapElement.current || !window.naver) return;
+        if (!mapElement.current || !(window as any).naver) return;
 
         const mapOptions = {
-            center: new window.naver.maps.LatLng(37.5665, 126.9780), // 서울 중심
+            center: new (window as any).naver.maps.LatLng(37.5665, 126.9780), // 서울 중심
             zoom: 7,
         };
-        const createdMap = new window.naver.maps.Map(mapElement.current, mapOptions);
+        const createdMap = new (window as any).naver.maps.Map(mapElement.current, mapOptions);
         setMap(createdMap);
     }, []);
 
@@ -70,13 +66,13 @@ export default function AdminHeatmapPage() {
 
     // 2. 지도와 데이터가 준비되면 히트맵 그리기
     useEffect(() => {
-        if (!map || heatmapData.length === 0 || !window.naver.maps.visualization) return;
+        if (!map || heatmapData.length === 0 || !(window as any).naver?.maps?.visualization) return;
 
         const latLngData = heatmapData.map(
-            item => new window.naver.maps.LatLng(item.latitude, item.longitude)
+            item => new (window as any).naver.maps.LatLng(item.latitude, item.longitude)
         );
 
-        const heatmap = new window.naver.maps.visualization.HeatMap({
+        const heatmap = new (window as any).naver.maps.visualization.HeatMap({
             map: map,
             data: latLngData,
             opacity: 0.8,
