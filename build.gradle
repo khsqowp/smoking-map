@@ -7,9 +7,9 @@ plugins {
 // --- ▼▼▼ [추가] Jackson 라이브러리 버전 강제 고정 ▼▼▼ ---
 configurations.all {
     resolutionStrategy {
-        force 'com.fasterxml.jackson.core:jackson-core:2.15.4'
-        force 'com.fasterxml.jackson.core:jackson-databind:2.15.4'
-        force 'com.fasterxml.jackson.core:jackson-annotations:2.15.4'
+        force 'com.fasterxml.jackson.core:jackson-core:2.20.0'
+        force 'com.fasterxml.jackson.core:jackson-databind:2.20.0'
+        force 'com.fasterxml.jackson.core:jackson-annotations:2.20.0'
         force 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.15.4'
         force 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.4'
         force 'com.fasterxml.jackson.module:jackson-module-parameter-names:2.15.4'
